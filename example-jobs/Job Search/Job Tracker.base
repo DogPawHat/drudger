@@ -1,0 +1,197 @@
+properties:
+  Company:
+    displayName: Company
+  Role:
+    displayName: Role
+  Location:
+    displayName: Location
+  Job Spec:
+    displayName: Job Spec
+  Found Via Type:
+    displayName: Found Via Type
+  Found Via URL:
+    displayName: Found Via URL
+  Found Via Ref:
+    displayName: Found Via Ref
+  Found Via Date:
+    displayName: Found Via Date
+  Canonical Source URL:
+    displayName: Canonical Source URL
+  Canonical Source Kind:
+    displayName: Canonical Source Kind
+  Canonical Source Verified:
+    displayName: Canonical Source Verified
+  Canonical Source Verified At:
+    displayName: Canonical Source Verified At
+  Canonical Source Confidence:
+    displayName: Canonical Source Confidence
+  Source Status State:
+    displayName: Source Status State
+  Source Status Reason:
+    displayName: Source Status Reason
+  Source Status Last Checked:
+    displayName: Source Status Last Checked
+  file.ctime:
+    displayName: Found
+  file.mtime:
+    displayName: Updated
+  Status:
+    displayName: Status
+  Next Step:
+    displayName: Next Step
+  Notes:
+    displayName: Notes
+views:
+  - type: table
+    name: All Jobs
+    filters:
+      and:
+        - file.inFolder("Job Search/Jobs")
+    order:
+      - Company
+      - Role
+      - Location
+      - Job Spec
+      - Status
+      - file.ctime
+      - file.mtime
+      - Next Step
+      - Notes
+    sort:
+      - property: file.ctime
+        direction: DESC
+  - type: table
+    name: Interested
+    filters:
+      and:
+        - file.inFolder("Job Search/Jobs")
+        - Status == "🔍"
+    order:
+      - Company
+      - Role
+      - Location
+      - Job Spec
+      - Status
+      - file.ctime
+      - file.mtime
+      - Next Step
+      - Notes
+    sort:
+      - property: file.ctime
+        direction: DESC
+  - type: table
+    name: Applied
+    filters:
+      and:
+        - file.inFolder("Job Search/Jobs")
+        - Status == "📝"
+    order:
+      - Company
+      - Role
+      - Location
+      - Job Spec
+      - Status
+      - file.ctime
+      - file.mtime
+      - Next Step
+      - Notes
+    sort:
+      - property: file.mtime
+        direction: DESC
+  - type: table
+    name: Interviewing
+    filters:
+      and:
+        - file.inFolder("Job Search/Jobs")
+        - Status == "💬"
+    order:
+      - Company
+      - Role
+      - Location
+      - Job Spec
+      - Status
+      - file.ctime
+      - file.mtime
+      - Next Step
+      - Notes
+    sort:
+      - property: file.mtime
+        direction: DESC
+  - type: table
+    name: No Offer
+    filters:
+      and:
+        - file.inFolder("Job Search/Jobs")
+        - Status == "🚫"
+    order:
+      - Company
+      - Role
+      - Location
+      - Job Spec
+      - Status
+      - file.ctime
+      - file.mtime
+      - Next Step
+      - Notes
+    sort:
+      - property: file.mtime
+        direction: DESC
+  - type: table
+    name: Offer
+    filters:
+      and:
+        - file.inFolder("Job Search/Jobs")
+        - Status == "✅"
+    order:
+      - Company
+      - Role
+      - Location
+      - Job Spec
+      - Status
+      - file.ctime
+      - file.mtime
+      - Next Step
+      - Notes
+    sort:
+      - property: file.mtime
+        direction: DESC
+  - type: table
+    name: Pending Verification
+    filters:
+      and:
+        - file.inFolder("Job Search/Jobs")
+        - or:
+            - Source Status State == "pending"
+            - Canonical Source Verified == false
+    order:
+      - Company
+      - Role
+      - Location
+      - Found Via URL
+      - Source Status State
+      - file.ctime
+      - file.mtime
+    sort:
+      - property: Found Via Date
+        direction: DESC
+  - type: table
+    name: Source Review Queue
+    filters:
+      and:
+        - file.inFolder("Job Search/Jobs")
+        - or:
+            - Source Status State == "needs_review"
+            - Source Status State == "broken"
+            - Canonical Source URL.isEmpty()
+    order:
+      - Company
+      - Role
+      - Location
+      - Source Status State
+      - Source Status Reason
+      - Source Status Last Checked
+      - file.ctime
+      - file.mtime
+    sort:
+      - property: Source Status Last Checked
+        direction: ASC
