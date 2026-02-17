@@ -32,7 +32,7 @@ Out of scope:
 Build command:
 
 ```bash
-bun build ./src/cli.ts --compile --outfile ./bin/job-tracker
+bun build ./src/cli.ts --compile --outfile ./job-tracker
 ```
 
 ## 4. Package Identity
@@ -58,7 +58,6 @@ job-tracker-cli/
       dedupe.ts
       normalize.ts
       errors.ts
-      clock.ts
     storage/
       markdown-store.ts
       parser.ts
@@ -67,40 +66,32 @@ job-tracker-cli/
       lock.ts
     output/
       print.ts
-  test/
-    fixtures/
-    unit/
-    integration/
-  bin/
 ```
 
 ## 5. Data Model
 
 ## 5.1 Canonical Record Fields
 
-Required record fields for persisted job entries:
+Persisted job entries must include:
 
 - `Company: string`
 - `Role: string`
-- `Location: string`
-- `Job Spec: string (url)`
-- `Found Via Type: "aggregator" | "board" | "referral" | "search" | "direct" | "other"`
-- `Found Via URL: string | null`
-- `Found Via Ref: string | null`
-- `Found Via Date: string | null` (ISO8601)
-- `Canonical Source URL: string | null`
-- `Canonical Source Kind: "ats" | "company_site" | "board_repost" | "unknown"`
-- `Canonical Source Verified: boolean`
-- `Canonical Source Verified At: string | null` (ISO8601)
-- `Canonical Source Confidence: "high" | "medium" | "low"`
-- `Source Status State: "pending" | "verified" | "needs_review" | "broken" | "unavailable"`
-- `Source Status Reason: string | null`
-- `Source Status Last Checked: string | null` (ISO8601)
-- `Status: "🔍" | "📝" | "💬" | "✅" | "🚫"` (unquoted in YAML output)
-- `Next Step: string`
-- `Notes: string`
-- `Found: string` (YYYY-MM-DD)
-- `Updated: string` (YYYY-MM-DD)
+- `Canonical Source URL: string (url)`
+
+All other fields are optional:
+
+- `Location?: string`
+- `Found Via Type?: "aggregator" | "board" | "referral" | "search" | "direct" | "other"`
+- `Found Via URL?: string | null`
+- `Found Via Ref?: string | null`
+- `Canonical Source Kind?: "ats" | "company_site" | "board_repost" | "unknown"`
+- `Canonical Source Verified?: boolean`
+- `Canonical Source Confidence?: "high" | "medium" | "low"`
+- `Source Status State?: "pending" | "verified" | "needs_review" | "broken" | "unavailable"`
+- `Source Status Reason?: string | null`
+- `Status?: "🔍" | "📝" | "💬" | "✅" | "🚫"` (unquoted in YAML output)
+- `Next Step?: string`
+- `Notes?: string`
 
 ## 5.2 Internal Record ID
 
@@ -121,9 +112,8 @@ Define:
 
 Validation rules:
 - URL fields must be syntactically valid URLs when non-null.
-- ISO date/time fields must parse as valid ISO8601 strings.
 - `Status` is enum of exact emojis.
-- `Canonical Source URL` null is allowed, but such records cannot pass canonical dedupe check and must follow fallback find behavior.
+- `Company`, `Role`, and `Canonical Source URL` are required for `add`.
 
 ## 6. Dedupe Contract
 
@@ -138,9 +128,8 @@ Normalization for URL dedupe:
 - Preserve meaningful path/query data.
 
 Command behavior:
-- `add` must always run `exists` logic first when canonical URL exists.
+- `add` must always run `exists` logic first.
 - If canonical URL match exists, `add` must fail with conflict (exit code `3`) and return existing record metadata.
-- If canonical URL is missing, `add` must perform fuzzy fallback query using normalized `Company + Role + Location` and warn on potential duplicate.
 
 ## 7. CLI Command Spec
 
@@ -195,10 +184,11 @@ job-tracker add --input <json-or-file-ref> [--vault-root <path>] [--format json|
 Input contract:
 - `--input` accepts either inline JSON or `@path/to/file.json`.
 - Parse -> `AddInputSchema`.
-- Auto-populate `Found` and `Updated` with today if omitted.
+- `Company`, `Role`, and `Canonical Source URL` are required.
+- Every other field is optional.
 
 Behavior:
-- If canonical URL present, run dedupe check.
+- Run dedupe check on `Canonical Source URL`.
 - If conflict, return existing record and fail with exit code `3`.
 - If create allowed, generate markdown filename `Job Search/Jobs/{Company} - {Role}.md` with slash replacement.
 - Persist frontmatter and existing body (empty on create unless `body` provided).
@@ -221,7 +211,6 @@ Behavior:
 - Locate record by computed ID.
 - Apply partial patch.
 - Revalidate full record through `JobRecordSchema`.
-- Force `Updated` = today.
 - If patch changes canonical URL, rerun dedupe conflict check against other records.
 
 Exit codes:
@@ -304,8 +293,7 @@ Exit code mapping:
 
 Rules enforced in validators/business logic:
 - Never set aggregator thread URL as canonical URL unless the posting truly lives there.
-- If `Canonical Source URL` is null, `Source Status State` should not be `verified`.
-- If `Canonical Source Verified` is true, `Canonical Source Verified At` must be non-null.
+- `Company`, `Role`, and `Canonical Source URL` are required for `add` and cannot be removed by `update`.
 - `Found Via Ref` must be human-readable context, not raw numeric ID only.
 
 ## 11. Logging and Output
@@ -345,7 +333,7 @@ Build steps:
 ```bash
 bun install
 bun test
-bun build ./src/cli.ts --compile --outfile ./bin/job-tracker
+bun build ./src/cli.ts --compile --outfile ./job-tracker
 ```
 
 Package artifacts:
