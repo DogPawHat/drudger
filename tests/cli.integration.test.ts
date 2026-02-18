@@ -463,6 +463,87 @@ test("unknown command returns available command hint", () => {
   expect(payload.error.message.includes("Available commands")).toBe(true);
 });
 
+test("find reads legacy notes with empty nullable URL fields", async () => {
+  const vault = await createTempVault();
+
+  try {
+    const jobsDir = join(vault.rootPath, "Job Search", "Jobs");
+    const filePath = join(jobsDir, "LegacyCo - Engineer - abcdef1234.md");
+
+    await Bun.write(
+      filePath,
+      [
+        "---",
+        "Company: LegacyCo",
+        "Role: Engineer",
+        "Job Spec: https://example.com/jobs/legacy",
+        "Found Via URL:",
+        "---",
+        "",
+        "legacy body",
+      ].join("\n"),
+    );
+
+    const found = runCli([
+      "find",
+      "--vault-root",
+      vault.rootPath,
+      "--query",
+      "LegacyCo",
+    ]);
+
+    expect(found.exitCode).toBe(0);
+    expect(found.stderr).toBe("");
+    const payload = parseJsonOutput(found.stdout);
+    expect(payload.ok).toBe(true);
+    expect(payload.results.length).toBe(1);
+    expect(payload.results[0].company).toBe("LegacyCo");
+  } finally {
+    await vault.cleanup();
+  }
+});
+
+test("find warns when skipping invalid job notes", async () => {
+  const vault = await createTempVault();
+
+  try {
+    const jobsDir = join(vault.rootPath, "Job Search", "Jobs");
+    const filePath = join(jobsDir, "InvalidCo - Engineer - badbadbad1.md");
+
+    await Bun.write(
+      filePath,
+      [
+        "---",
+        "Company: InvalidCo",
+        "Role: Engineer",
+        "Job Spec: https://example.com/jobs/invalid",
+        "Status: not-an-emoji",
+        "---",
+        "",
+        "invalid body",
+      ].join("\n"),
+    );
+
+    const found = runCli([
+      "find",
+      "--vault-root",
+      vault.rootPath,
+      "--query",
+      "InvalidCo",
+    ]);
+
+    expect(found.exitCode).toBe(0);
+    const payload = parseJsonOutput(found.stdout);
+    expect(payload.ok).toBe(true);
+    expect(payload.results.length).toBe(0);
+    expect(found.stderr.includes("Warning: skipped invalid job note")).toBe(true);
+    expect(found.stderr.includes("InvalidCo - Engineer - badbadbad1.md")).toBe(true);
+    expect(found.stderr.includes("Status")).toBe(true);
+  } finally {
+    await vault.cleanup();
+  }
+});
+
 test("root help prints usage and exits successfully", () => {
   const result = runCli(["--help"]);
 

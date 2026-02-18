@@ -26,6 +26,25 @@ async function atomicWrite(fullPath: string, content: string): Promise<void> {
 async function readAllMarkdownFiles(vaultRoot: string): Promise<StoredJob[]> {
   const jobsDir = resolveJobsDirectory(vaultRoot);
 
+  const normalizeLegacyNullableFields = (frontmatter: Record<string, unknown>): Record<string, unknown> => {
+    const normalized = { ...frontmatter };
+    const nullableFields = ["Found Via URL", "Found Via Ref", "Source Status Reason"];
+
+    for (const field of nullableFields) {
+      if (normalized[field] === "") {
+        normalized[field] = null;
+      }
+    }
+
+    return normalized;
+  };
+
+  const warnSkippedFile = (relativePath: string, issues: string[]): void => {
+    process.stderr.write(
+      `Warning: skipped invalid job note '${relativePath}' (${issues.join("; ")})\n`,
+    );
+  };
+
   try {
     await mkdir(jobsDir, { recursive: true });
     const entries = await readdir(jobsDir, { withFileTypes: true });
@@ -39,9 +58,15 @@ async function readAllMarkdownFiles(vaultRoot: string): Promise<StoredJob[]> {
       const fullPath = join(jobsDir, entry.name);
       const content = await Bun.file(fullPath).text();
       const parsed = parseMarkdownNote(content);
-      const recordParse = JobRecordSchema.safeParse(parsed.frontmatter);
+      const normalizedFrontmatter = normalizeLegacyNullableFields(parsed.frontmatter);
+      const recordParse = JobRecordSchema.safeParse(normalizedFrontmatter);
 
       if (!recordParse.success) {
+        const issues = recordParse.error.issues.map((issue) => {
+          const field = issue.path.join(".");
+          return field ? `${field}: ${issue.message}` : issue.message;
+        });
+        warnSkippedFile(toRelativeJobPath(vaultRoot, fullPath), issues);
         continue;
       }
 
@@ -173,7 +198,7 @@ export async function findJobs(
 export async function updateJob(vaultRoot: string, id: string, patch: UpdatePatch): Promise<StoredJob> {
   const jobsDir = resolveJobsDirectory(vaultRoot);
 
-  return withFileLock(join(jobsDir, `.record-${id}.lock`), async () => {
+  return withFileLock(join(jobsDir, ".mutations.lock"), async () => {
     const jobs = await readAllMarkdownFiles(vaultRoot);
     const current = jobs.find((job) => job.id === id);
 
