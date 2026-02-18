@@ -37,7 +37,7 @@ Out of scope:
 Build command:
 
 ```bash
-bun build ./src/cli.ts --compile --outfile ./job-tracker
+bun build ./src/cli.ts --compile --outfile ./bin/job-tracker
 ```
 
 ## 4. Package Identity
@@ -353,7 +353,7 @@ Build steps:
 ```bash
 bun install
 bun test
-bun build ./src/cli.ts --compile --outfile ./job-tracker
+bun build ./src/cli.ts --compile --outfile ./bin/job-tracker
 ```
 
 Package artifacts:

@@ -127,5 +127,5 @@ Update flow:
 - Build command:
 
 ```bash
-bun build ./src/cli.ts --compile --outfile ./job-tracker
+bun build ./src/cli.ts --compile --outfile ./bin/job-tracker
 ```

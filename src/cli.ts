@@ -12,8 +12,110 @@ import { runUpdate } from "./commands/update";
 import { CliError, toExitCode } from "./core/errors";
 import { printError, printSuccess } from "./output/print";
 
+function globalHelp(): string {
+  return [
+    "Usage: job-tracker <command> [options]",
+    "",
+    "Commands:",
+    "  exists  Check for an existing job by Job Spec URL",
+    "  add     Add a new job record",
+    "  update  Update an existing job record by id",
+    "  find    Search job records",
+    "  help    Show help for command",
+    "",
+    "Global options:",
+    "  --vault-root <path>   Vault root path (default: ~/obsidian/crabpot)",
+    "  --format json|text    Output format (default: json)",
+    "  --help, -h            Show help",
+  ].join("\n");
+}
+
+function commandHelp(command: string): string {
+  if (command === "exists") {
+    return [
+      "Usage: job-tracker exists --job-spec-url <url> [options]",
+      "",
+      "Options:",
+      "  --job-spec-url <url>",
+      "  --canonical-source-url <url>   Deprecated alias",
+      "  --vault-root <path>",
+      "  --format json|text",
+    ].join("\n");
+  }
+
+  if (command === "add") {
+    return [
+      "Usage: job-tracker add --input <json-or-file-ref> [options]",
+      "",
+      "Options:",
+      "  --input <json-or-file-ref>",
+      "  --vault-root <path>",
+      "  --format json|text",
+    ].join("\n");
+  }
+
+  if (command === "update") {
+    return [
+      "Usage: job-tracker update --id <id> --patch <json-or-file-ref> [options]",
+      "",
+      "Options:",
+      "  --id <id>",
+      "  --patch <json-or-file-ref>",
+      "  --vault-root <path>",
+      "  --format json|text",
+    ].join("\n");
+  }
+
+  if (command === "find") {
+    return [
+      "Usage: job-tracker find --query <text> [options]",
+      "",
+      "Options:",
+      "  --query <text>",
+      "  --status <emoji>",
+      "  --limit <n>",
+      "  --vault-root <path>",
+      "  --format json|text",
+    ].join("\n");
+  }
+
+  return globalHelp();
+}
+
+function parseHelpRequest(argv: string[]): { show: boolean; command?: string } {
+  if (argv.length === 0) {
+    return { show: true };
+  }
+
+  const first = argv[0];
+  const second = argv[1];
+  const hasHelpFlag = argv.includes("--help") || argv.includes("-h");
+
+  if (first === "help") {
+    return { show: true, command: second };
+  }
+
+  if (first === "--help" || first === "-h") {
+    return { show: true, command: second };
+  }
+
+  if (hasHelpFlag && first) {
+    return { show: true, command: first };
+  }
+
+  return { show: false };
+}
+
 async function main(): Promise<number> {
-  const args = parseArgs(Bun.argv.slice(2));
+  const rawArgs = Bun.argv.slice(2);
+  const help = parseHelpRequest(rawArgs);
+
+  if (help.show) {
+    process.stdout.write(`${help.command ? commandHelp(help.command) : globalHelp()}\n`);
+    return 0;
+  }
+
+  const args = parseArgs(rawArgs);
   const format = getFormat(args.options);
   const vaultRoot = getVaultRoot(args.options);
 
@@ -87,7 +189,14 @@ main()
     process.exit(exitCode);
   })
   .catch((error) => {
-    const format = getFormat(parseArgs(Bun.argv.slice(2)).options);
+    let format: "json" | "text" = "json";
+
+    try {
+      format = getFormat(parseArgs(Bun.argv.slice(2)).options);
+    } catch {
+      format = "json";
+    }
+
     printError(format, error);
     process.exit(toExitCode(error));
   });

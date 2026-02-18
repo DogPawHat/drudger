@@ -84,5 +84,5 @@
 ## Build Verification
 
 - `bun test`
-- `bun build ./src/cli.ts --compile --outfile ./job-tracker`
+- `bun build ./src/cli.ts --compile --outfile ./bin/job-tracker`
 - Smoke run commands against fixture vault.

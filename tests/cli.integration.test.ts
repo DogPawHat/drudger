@@ -435,3 +435,23 @@ test("concurrent updates do not corrupt markdown", async () => {
     await vault.cleanup();
   }
 });
+
+test("root help prints usage and exits successfully", () => {
+  const result = runCli(["--help"]);
+
+  expect(result.exitCode).toBe(0);
+  expect(result.stdout.includes("Usage: job-tracker <command> [options]")).toBe(true);
+  expect(result.stdout.includes("Commands:")).toBe(true);
+  expect(result.stdout.includes("exists")).toBe(true);
+  expect(result.stdout.includes("add")).toBe(true);
+  expect(result.stdout.includes("update")).toBe(true);
+  expect(result.stdout.includes("find")).toBe(true);
+});
+
+test("subcommand help prints command-specific usage", () => {
+  const result = runCli(["add", "--help"]);
+
+  expect(result.exitCode).toBe(0);
+  expect(result.stdout.includes("Usage: job-tracker add --input <json-or-file-ref>")).toBe(true);
+  expect(result.stdout.includes("--input")).toBe(true);
+});

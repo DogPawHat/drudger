@@ -3,6 +3,13 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "test": "bun test",
+    "build": "mkdir -p ./bin && bun build ./src/cli.ts --compile --outfile ./bin/job-tracker",
+    "typecheck": "bunx tsc --noEmit",
+    "smoke:binary": "bun test tests/compiled-binary.smoke.test.ts",
+    "test:binary": "bun run build && bun run smoke:binary"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },

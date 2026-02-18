@@ -6,10 +6,28 @@ To install dependencies:
 bun install
 ```
 
-To run:
+Run tests:
 
 ```bash
-bun run index.ts
+bun test
 ```
 
-This project was created using `bun init` in bun v1.3.9. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+Build single-file executable:
+
+```bash
+bun run build
+```
+
+Compile + smoke test the binary:
+
+```bash
+bun run test:binary
+```
+
+CLI help:
+
+```bash
+./bin/job-tracker --help
+./bin/job-tracker help add
+./bin/job-tracker exists --help
+```
