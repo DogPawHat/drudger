@@ -37,18 +37,18 @@ Out of scope:
 Build command:
 
 ```bash
-bun build ./src/cli.ts --compile --outfile ./bin/job-tracker
+bun build ./src/cli.ts --compile --outfile ./bin/drudger
 ```
 
 ## 4. Package Identity
 
 Recommended package name:
-- `@openclaw/job-tracker-cli`
+- `drudger`
 
 Recommended repository layout:
 
 ```text
-job-tracker-cli/
+drudger/
   package.json
   bun.lock
   src/
@@ -155,7 +155,7 @@ Global options:
 Command:
 
 ```bash
-job-tracker exists --job-spec-url <url> [--vault-root <path>] [--format json|text]
+drudger exists --job-spec-url <url> [--vault-root <path>] [--format json|text]
 ```
 
 Compatibility:
@@ -194,7 +194,7 @@ Exit codes:
 Command:
 
 ```bash
-job-tracker add --input <json-or-file-ref> [--vault-root <path>] [--format json|text]
+drudger add --input <json-or-file-ref> [--vault-root <path>] [--format json|text]
 ```
 
 Input contract:
@@ -220,7 +220,7 @@ Exit codes:
 Command:
 
 ```bash
-job-tracker update --id <id> --patch <json-or-file-ref> [--vault-root <path>] [--format json|text]
+drudger update --id <id> --patch <json-or-file-ref> [--vault-root <path>] [--format json|text]
 ```
 
 Behavior:
@@ -242,7 +242,7 @@ Exit codes:
 Command:
 
 ```bash
-job-tracker find --query <text> [--status <emoji>] [--limit <n>] [--vault-root <path>] [--format json|text]
+drudger find --query <text> [--status <emoji>] [--limit <n>] [--vault-root <path>] [--format json|text]
 ```
 
 Behavior:
@@ -353,7 +353,7 @@ Build steps:
 ```bash
 bun install
 bun test
-bun build ./src/cli.ts --compile --outfile ./bin/job-tracker
+bun build ./src/cli.ts --compile --outfile ./bin/drudger
 ```
 
 Package artifacts:

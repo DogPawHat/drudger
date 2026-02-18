@@ -1,5 +1,5 @@
 ---
-name: job-tracker
+name: drudger
 description: Use the Job Tracker CLI as the authoritative write interface for Obsidian job records. Covers add/exists/update/find, schema validation, dedupe, filename rules, and source-integrity requirements.
 ---
 
@@ -54,24 +54,24 @@ Global options:
 - `--quiet` (text mode only)
 
 `exists`
-- `job-tracker exists --job-spec-url <url> [--vault-root <path>] [--format json|text]`
+- `drudger exists --job-spec-url <url> [--vault-root <path>] [--format json|text]`
 - Normalizes URL and checks for existing match.
 - Exit codes: `0` success, `2` validation error, `5` storage/read error.
 
 `add`
-- `job-tracker add --input <json-or-file-ref> [--vault-root <path>] [--format json|text]`
+- `drudger add --input <json-or-file-ref> [--vault-root <path>] [--format json|text]`
 - Always runs dedupe check on job spec URL.
 - On duplicate returns conflict with exit code `3`.
 - Exit codes: `0` created, `2` validation error, `3` duplicate, `5` storage/write error.
 
 `update`
-- `job-tracker update --id <id> --patch <json-or-file-ref> [--vault-root <path>] [--format json|text]`
+- `drudger update --id <id> --patch <json-or-file-ref> [--vault-root <path>] [--format json|text]`
 - Applies partial patch, then revalidates full record.
 - If `Job Spec` changes, reruns dedupe conflict check.
 - Exit codes: `0` updated, `2` validation error, `3` duplicate, `4` not found, `5` storage/write error.
 
 `find`
-- `job-tracker find --query <text> [--status <emoji>] [--limit <n>] [--vault-root <path>] [--format json|text]`
+- `drudger find --query <text> [--status <emoji>] [--limit <n>] [--vault-root <path>] [--format json|text]`
 - Search fields: `Company`, `Role`, `Location`, `Notes`, `Found Via Ref`, `Job Spec`.
 - Default limit `20`, max `200`.
 - Exit codes: `0` executed, `2` invalid args, `5` storage/read error.
@@ -127,5 +127,5 @@ Update flow:
 - Build command:
 
 ```bash
-bun build ./src/cli.ts --compile --outfile ./bin/job-tracker
+bun build ./src/cli.ts --compile --outfile ./bin/drudger
 ```

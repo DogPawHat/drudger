@@ -1,11 +1,11 @@
 {
-  "name": "job-tracker",
+  "name": "drudger",
   "module": "index.ts",
   "type": "module",
   "private": true,
   "scripts": {
     "test": "bun test",
-    "build": "mkdir -p ./bin && bun build ./src/cli.ts --compile --outfile ./bin/job-tracker",
+    "build": "mkdir -p ./bin && bun build ./src/cli.ts --compile --outfile ./bin/drudger",
     "typecheck": "bunx tsc --noEmit",
     "smoke:binary": "bun test tests/compiled-binary.smoke.test.ts",
     "test:binary": "bun run build && bun run smoke:binary"

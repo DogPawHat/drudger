@@ -6,6 +6,7 @@ out
 dist
 bin
 /job-tracker
+/drudger
 *.tgz
 
 # code coverage

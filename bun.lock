@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "job-tracker",
+      "name": "drudger",
       "dependencies": {
         "zod": "^4.3.6",
       },

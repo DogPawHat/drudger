@@ -12,8 +12,8 @@ function decode(bytes: Uint8Array): string {
 }
 
 test("compiled binary supports add/exists workflow", async () => {
-  const compileDir = await mkdtemp(join(REPO_ROOT, ".tmp-job-tracker-binary-test-"));
-  const binaryPath = join(compileDir, "job-tracker-smoke");
+  const compileDir = await mkdtemp(join(REPO_ROOT, ".tmp-drudger-binary-test-"));
+  const binaryPath = join(compileDir, "drudger-smoke");
   const vault = await createTempVault();
 
   try {

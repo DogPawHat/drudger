@@ -12,7 +12,7 @@ export type TempVault = {
 };
 
 export async function createTempVault(): Promise<TempVault> {
-  const rootPath = await mkdtemp(join(tmpdir(), "job-tracker-vault-"));
+  const rootPath = await mkdtemp(join(tmpdir(), "drudger-vault-"));
   const jobsPath = join(rootPath, JOBS_DIRECTORY);
 
   await mkdir(jobsPath, { recursive: true });

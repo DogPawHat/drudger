@@ -15,7 +15,7 @@ import { printError, printSuccess } from "./output/print";
 
 function globalHelp(): string {
   return [
-    "Usage: job-tracker <command> [options]",
+    "Usage: drudger <command> [options]",
     "",
     "Commands:",
     "  exists  Check for an existing job by Job Spec URL",
@@ -35,7 +35,7 @@ function globalHelp(): string {
 function commandHelp(command: string): string {
   if (command === "exists") {
     return [
-      "Usage: job-tracker exists --job-spec-url <url> [options]",
+      "Usage: drudger exists --job-spec-url <url> [options]",
       "",
       "Options:",
       "  --job-spec-url <url>",
@@ -47,7 +47,7 @@ function commandHelp(command: string): string {
 
   if (command === "add") {
     return [
-      "Usage: job-tracker add --input <json-or-file-ref> [options]",
+      "Usage: drudger add --input <json-or-file-ref> [options]",
       "",
       "Options:",
       "  --input <json-or-file-ref>",
@@ -58,7 +58,7 @@ function commandHelp(command: string): string {
 
   if (command === "update") {
     return [
-      "Usage: job-tracker update --id <id> --patch <json-or-file-ref> [options]",
+      "Usage: drudger update --id <id> --patch <json-or-file-ref> [options]",
       "",
       "Options:",
       "  --id <id>",
@@ -70,7 +70,7 @@ function commandHelp(command: string): string {
 
   if (command === "find") {
     return [
-      "Usage: job-tracker find --query <text> [options]",
+      "Usage: drudger find --query <text> [options]",
       "",
       "Options:",
       "  --query <text>",
