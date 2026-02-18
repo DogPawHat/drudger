@@ -20,6 +20,17 @@ Direct markdown reads are allowed. Body text (content under frontmatter) may be 
 - Validate all `add` and `update` payloads through Zod-backed CLI schemas.
 - Surface validation/duplicate/not-found errors directly; do not silently coerce.
 
+## Installation and Availability
+
+- Check that the CLI is available before running workflow commands:
+
+```bash
+command -v drudger >/dev/null 2>&1 && drudger --help
+```
+
+- If `drudger` is not found, install it using this repository's documented install flow (see `README.md`), then rerun the check.
+- Expected binary location is typically `~/.local/bin/drudger`; ensure `~/.local/bin` is on `PATH`.
+
 ## Frontmatter Schema
 
 Required fields:
