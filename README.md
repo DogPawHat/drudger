@@ -1,6 +1,6 @@
 # drudger
 
-CLI for managing Obsidian job records. Meant for use as an skill tool by OpenClaw so it can track job applications reiliably. Most vibe coded thing I've done but hopefully the tests are total trash lol.
+CLI for managing Obsidian job records. Meant for use as an skill tool by OpenClaw so it can track job applications reiliably. Most vibe coded thing I've done but hopefully the tests aren't total trash lol.
 
 Install the latest release:
 
