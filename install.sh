@@ -103,7 +103,7 @@ main() {
 
   tmp_dir=""
   tmp_dir="$(mktemp -d)"
-  trap 'rm -rf "$tmp_dir"' EXIT
+  trap 'rm -rf "${tmp_dir:-}"' EXIT
 
   local binary_path="$tmp_dir/$asset_name"
   local checksums_path="$tmp_dir/sha256sums.txt"
