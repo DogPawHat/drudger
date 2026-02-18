@@ -102,8 +102,10 @@ All other fields are optional:
 
 CLI should expose a stable computed ID for lookup/update responses:
 
-- `id = sha256(lowercase(trim(job_spec_url)))` when job spec URL exists.
+- `id = sha256(normalize_url(job_spec_url))` when job spec URL exists.
 - If job spec URL is missing, `id = sha256(normalized_company + "|" + normalized_role + "|" + normalized_location)`.
+
+`normalize_url(...)` for ID computation must use the same normalization rules defined in Section 6 (Dedupe Contract).
 
 This ID is internal to CLI workflows and does not replace markdown filename conventions.
 
@@ -146,6 +148,7 @@ Global options:
 - `--vault-root <path>` default: `~/obsidian/crabpot`
 - `--format json|text` default: `json`
 - `--quiet` suppress non-error logs in text mode
+- Backward-compatible flag alias (temporary): `--canonical-source-url` is accepted as an alias for `--job-spec-url`.
 
 ## 7.1 `exists`
 
@@ -154,6 +157,10 @@ Command:
 ```bash
 job-tracker exists --job-spec-url <url> [--vault-root <path>] [--format json|text]
 ```
+
+Compatibility:
+- `--canonical-source-url <url>` must be accepted as a deprecated alias for one release window.
+- When alias is used, behavior must be identical to `--job-spec-url`, and JSON output may include a deprecation warning.
 
 Behavior:
 - Normalize job spec URL.

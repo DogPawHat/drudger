@@ -11,7 +11,7 @@ For agents and automation, the CLI is the only authorized write interface for jo
 - file creation
 - frontmatter/property updates
 
-Direct markdown reads are allowed. Body text (content under frontmatter) may be appended/updated via CLI workflows.
+Direct markdown reads are allowed. Body text (content under frontmatter) may be appended/updated via normal agent tools (patch, write, edit, etc.)
 
 ## Interface Rules
 
