@@ -81,7 +81,15 @@ export function getVaultRoot(options: Map<string, string | true>): string {
     return fromFlag;
   }
 
-  return `${process.env.HOME ?? ""}/obsidian/crabpot`;
+  const home = process.env.HOME;
+  if (!home) {
+    throw new CliError(
+      "VALIDATION_ERROR",
+      "Missing HOME; pass --vault-root <path> explicitly",
+    );
+  }
+
+  return `${home}/obsidian/crabpot`;
 }
 
 export async function parseJsonInput(value: string): Promise<Record<string, unknown>> {
