@@ -75,7 +75,7 @@ job-tracker-cli/
 
 ## 5. Data Model
 
-## 5.1 Canonical Record Fields
+## 5.1 Record Fields
 
 Persisted job entries must include:
 
@@ -124,7 +124,7 @@ Validation rules:
 
 ## 5.4 Current Note Schema Differences (Informational Only)
 
-The canonical contract in Sections 5.1-5.3 is the active schema. Example notes and `Job Tracker.base` are aligned to this schema at this time.
+The schema contract in Sections 5.1-5.3 is the active schema. Example notes and `Job Tracker.base` are aligned to this schema at this time.
 
 ## 6. Dedupe Contract
 
@@ -381,7 +381,7 @@ Phase 4:
 ## 15. Acceptance Criteria
 
 - CLI supports `exists`, `add`, `update`, `find` exactly as specified.
-- Canonical URL dedupe is enforced and tested.
+- Job spec URL dedupe is enforced and tested.
 - All create/update inputs are Zod-validated.
 - Runtime dependency list contains only `zod`.
 - Binary builds successfully via Bun compile command.

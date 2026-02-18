@@ -20,7 +20,7 @@ Direct markdown reads are allowed. Body text (content under frontmatter) may be 
 - Validate all `add` and `update` payloads through Zod-backed CLI schemas.
 - Surface validation/duplicate/not-found errors directly; do not silently coerce.
 
-## Canonical Frontmatter Schema
+## Frontmatter Schema
 
 Required fields:
 - `Company: string`
@@ -44,7 +44,7 @@ Optional fields:
 Notes:
 - URL fields must be syntactically valid when non-null.
 - `Company`, `Role`, and `Job Spec` are required for `add`.
-- Do not use non-canonical properties such as `Found Via Date`, `Job Spec Verified At`, or `Source Status Last Checked`.
+- Do not use properties outside this schema, such as `Found Via Date`, `Job Spec Verified At`, or `Source Status Last Checked`.
 
 ## CLI Commands
 
@@ -110,7 +110,7 @@ Rename behavior:
 Add flow:
 1. Determine job spec URL.
 2. Run `exists` with job spec URL.
-3. If no match, run `add` with canonical schema payload.
+3. If no match, run `add` with a payload that matches this schema.
 4. If duplicate, stop and use existing record metadata.
 
 Update flow:
