@@ -2,17 +2,15 @@
 Company: CrowdStrike
 Role: Frontend Engineer III (Hybrid, IRE)
 Location: Dublin, Ireland (Hybrid)
-Job Spec: https://builtindublin.ie/job/frontend-engineer-iii-remote-ire/8103020
 
 Found Via Type: aggregator
 Found Via URL: https://builtindublin.ie/jobs/dev-engineering/search/front-end-developer
 Found Via Ref: https://builtindublin.ie/job/frontend-engineer-iii-remote-ire/8103020
-Found Via Date: 2026-02-16T10:58:00Z
 
-Canonical Source URL: https://builtindublin.ie/job/frontend-engineer-iii-remote-ire/8103020
-Canonical Source Kind: aggregator
-Canonical Source Verified: true
-Canonical Source Confidence: medium
+Job Spec: https://builtindublin.ie/job/frontend-engineer-iii-remote-ire/8103020
+Job Spec Kind: board_repost
+Job Spec Verified: true
+Job Spec Confidence: medium
 
 Source Status State: verified
 

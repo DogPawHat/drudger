@@ -2,21 +2,17 @@
 Company: Filen
 Role: Senior Full-Stack Developer / Senior Product Engineer
 Location: Remote (EU) or Recklinghausen, Germany
-Job Spec: https://filen.io/hub/were-hiring-senior-full-stack-developer-react-react-native-typescript-m-f-d/
 
 Found Via Type: direct
 Found Via URL: https://filen.io/hub/were-hiring-senior-full-stack-developer-react-react-native-typescript-m-f-d/
 Found Via Ref: Filen.io job posting
-Found Via Date: 2026-02-11T16:00:00Z
 
-Canonical Source URL: https://filen.io/hub/were-hiring-senior-full-stack-developer-react-react-native-typescript-m-f-d/
-Canonical Source Kind: company_site
-Canonical Source Verified: true
-Canonical Source Verified At: 2026-02-11T16:05:00Z
-Canonical Source Confidence: high
+Job Spec: https://filen.io/hub/were-hiring-senior-full-stack-developer-react-react-native-typescript-m-f-d/
+Job Spec Kind: company_site
+Job Spec Verified: true
+Job Spec Confidence: high
 
 Source Status State: verified
-Source Status Last Checked: 2026-02-12T20:55:00Z
 
 Status: 💬
 Next Step: 2026-02-18T14:30:00

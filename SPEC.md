@@ -81,7 +81,7 @@ Persisted job entries must include:
 
 - `Company: string`
 - `Role: string`
-- `Canonical Source URL: string (url)`
+- `Job Spec: string (url)`
 
 All other fields are optional:
 
@@ -89,9 +89,9 @@ All other fields are optional:
 - `Found Via Type?: "aggregator" | "board" | "referral" | "search" | "direct" | "other"`
 - `Found Via URL?: string | null`
 - `Found Via Ref?: string | null`
-- `Canonical Source Kind?: "ats" | "company_site" | "board_repost" | "unknown"`
-- `Canonical Source Verified?: boolean`
-- `Canonical Source Confidence?: "high" | "medium" | "low"`
+- `Job Spec Kind?: "ats" | "company_site" | "board_repost" | "unknown"`
+- `Job Spec Verified?: boolean`
+- `Job Spec Confidence?: "high" | "medium" | "low"`
 - `Source Status State?: "pending" | "verified" | "needs_review" | "broken" | "unavailable"`
 - `Source Status Reason?: string | null`
 - `Status?: "🔍" | "📝" | "💬" | "✅" | "🚫"` (unquoted in YAML output)
@@ -102,8 +102,8 @@ All other fields are optional:
 
 CLI should expose a stable computed ID for lookup/update responses:
 
-- `id = sha256(lowercase(trim(canonical_source_url)))` when canonical URL exists.
-- If canonical URL is missing, `id = sha256(normalized_company + "|" + normalized_role + "|" + normalized_location)`.
+- `id = sha256(lowercase(trim(job_spec_url)))` when job spec URL exists.
+- If job spec URL is missing, `id = sha256(normalized_company + "|" + normalized_role + "|" + normalized_location)`.
 
 This ID is internal to CLI workflows and does not replace markdown filename conventions.
 
@@ -118,20 +118,16 @@ Define:
 Validation rules:
 - URL fields must be syntactically valid URLs when non-null.
 - `Status` is enum of exact emojis.
-- `Company`, `Role`, and `Canonical Source URL` are required for `add`.
+- `Company`, `Role`, and `Job Spec` are required for `add`.
 
 ## 5.4 Current Note Schema Differences (Informational Only)
 
-The canonical contract in Sections 5.1-5.3 remains unchanged for now. The current notes in `example-jobs/Job Search/Jobs/` and the `.base` file indicate active schema differences that should be tracked but not implemented in this spec yet:
-
-- Additional fields currently present in notes and `Job Tracker.base`: `Job Spec`, `Found Via Date`, `Canonical Source Verified At`, `Source Status Last Checked`.
-- `Found Via Type` currently includes `hn`, which is not yet listed in the spec enum.
-- `Canonical Source Kind` currently includes `aggregator`, which is not yet listed in the spec enum.
+The canonical contract in Sections 5.1-5.3 is the active schema. Example notes and `Job Tracker.base` are aligned to this schema at this time.
 
 ## 6. Dedupe Contract
 
 Primary key:
-- `Canonical Source URL` (after normalization).
+- `Job Spec` (after normalization).
 
 Normalization for URL dedupe:
 - Trim whitespace.
@@ -142,7 +138,7 @@ Normalization for URL dedupe:
 
 Command behavior:
 - `add` must always run `exists` logic first.
-- If canonical URL match exists, `add` must fail with conflict (exit code `3`) and return existing record metadata.
+- If job spec URL match exists, `add` must fail with conflict (exit code `3`) and return existing record metadata.
 
 ## 7. CLI Command Spec
 
@@ -156,12 +152,12 @@ Global options:
 Command:
 
 ```bash
-job-tracker exists --canonical-source-url <url> [--vault-root <path>] [--format json|text]
+job-tracker exists --job-spec-url <url> [--vault-root <path>] [--format json|text]
 ```
 
 Behavior:
-- Normalize URL.
-- Search records by canonical URL.
+- Normalize job spec URL.
+- Search records by job spec URL.
 - Return match status and matched record summary.
 
 JSON success output:
@@ -176,14 +172,14 @@ JSON success output:
     "company": "Company",
     "role": "Role",
     "status": "🔍",
-    "canonicalSourceUrl": "https://example.com/job/123"
+    "jobSpec": "https://example.com/job/123"
   }
 }
 ```
 
 Exit codes:
 - `0`: command executed, no internal error.
-- `2`: validation error (invalid URL).
+- `2`: validation error (invalid job spec URL).
 - `5`: storage/read error.
 
 ## 7.2 `add`
@@ -197,11 +193,11 @@ job-tracker add --input <json-or-file-ref> [--vault-root <path>] [--format json|
 Input contract:
 - `--input` accepts either inline JSON or `@path/to/file.json`.
 - Parse -> `AddInputSchema`.
-- `Company`, `Role`, and `Canonical Source URL` are required.
+- `Company`, `Role`, and `Job Spec` are required.
 - Every other field is optional.
 
 Behavior:
-- Run dedupe check on `Canonical Source URL`.
+- Run dedupe check on `Job Spec`.
 - If conflict, return existing record and fail with exit code `3`.
 - If create allowed, generate markdown filename `Job Search/Jobs/{Company} - {Role} - {dedupeKey}.md` with slash replacement.
 - Persist frontmatter and existing body (empty on create unless `body` provided).
@@ -224,7 +220,7 @@ Behavior:
 - Locate record by computed ID.
 - Apply partial patch.
 - Revalidate full record through `JobRecordSchema`.
-- If patch changes canonical URL, rerun dedupe conflict check against other records.
+- If patch changes `Job Spec`, rerun dedupe conflict check against other records.
 - If patch changes `Job Spec` (or changes the URL used to derive `dedupeKey`), recompute `dedupeKey` and rename the file to match the filename rule.
 
 Exit codes:
@@ -243,7 +239,7 @@ job-tracker find --query <text> [--status <emoji>] [--limit <n>] [--vault-root <
 ```
 
 Behavior:
-- Case-insensitive search against `Company`, `Role`, `Location`, `Notes`, `Found Via Ref`, `Canonical Source URL`.
+- Case-insensitive search against `Company`, `Role`, `Location`, `Notes`, `Found Via Ref`, `Job Spec`.
 - Optional status filter.
 - Default limit `20`, max limit `200`.
 - Return compact summaries with `id` and `path`.
@@ -263,7 +259,6 @@ Filename rule:
 - Replace `/` with `-`.
 - `dedupeKey` is derived from URL hash:
   - `dedupeKey = first10(sha256(normalize_url(job_spec_url)))`.
-  - Until `Job Spec` is part of the canonical schema, if `Job Spec` is unavailable, fallback to `first10(sha256(normalize_url(canonical_source_url)))`.
 - If collision still occurs (extremely unlikely), append ` (2)`, ` (3)`, etc.
 - On update, if `Company`, `Role`, or the URL used for `dedupeKey` changes, the file must be renamed to the newly computed filename.
 
@@ -310,8 +305,8 @@ Exit code mapping:
 ## 10. Source Integrity Enforcement
 
 Rules enforced in validators/business logic:
-- Never set aggregator thread URL as canonical URL unless the posting truly lives there.
-- `Company`, `Role`, and `Canonical Source URL` are required for `add` and cannot be removed by `update`.
+- Never set aggregator thread URL as `Job Spec` unless the posting truly lives there.
+- `Company`, `Role`, and `Job Spec` are required for `add` and cannot be removed by `update`.
 - `Found Via Ref` must be human-readable context, not raw numeric ID only.
 
 ## 11. Logging and Output
@@ -334,8 +329,8 @@ Unit tests:
 - Error-to-exit-code mapping.
 
 Integration tests:
-- Add with canonical URL then duplicate add conflict.
-- Update with canonical URL change that conflicts.
+- Add with job spec URL then duplicate add conflict.
+- Update with job spec URL change that conflicts.
 - Find behavior with filters and limits.
 - Markdown roundtrip parse/serialize preserves body.
 - Concurrent update lock behavior.

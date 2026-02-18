@@ -2,18 +2,14 @@
 Company: Cogram
 Role: Product Engineer (full-stack)
 Location: Remote (CET ±3)
-Job Spec: https://cogram.com/
 Found Via Type: aggregator
 Found Via URL: https://news.ycombinator.com/item?id=46857488
 Found Via Ref: https://news.ycombinator.com/item?id=46859392
-Found Via Date: 2026-02-13T10:00:00Z
-Canonical Source URL: https://cogram.com/
-Canonical Source Kind: company_site
-Canonical Source Verified: true
-Canonical Source Verified At: 2026-02-13T12:25:00Z
-Canonical Source Confidence: high
+Job Spec: https://cogram.com/
+Job Spec Kind: company_site
+Job Spec Verified: true
+Job Spec Confidence: high
 Source Status State: verified
-Source Status Last Checked: 2026-02-13T12:25:00Z
 Status: 📝
 Next Step: Await response from Cogram hiring team
 Notes: Application sent on 2026-02-13. YC W22, $4.5M seed from Initialized + YC. AI platform for AEC industry. ~15 people, Berlin-based. 38 paid days off, 3 off-sites/year.

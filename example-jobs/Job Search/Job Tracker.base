@@ -5,32 +5,24 @@ properties:
     displayName: Role
   Location:
     displayName: Location
-  Job Spec:
-    displayName: Job Spec
   Found Via Type:
     displayName: Found Via Type
   Found Via URL:
     displayName: Found Via URL
   Found Via Ref:
     displayName: Found Via Ref
-  Found Via Date:
-    displayName: Found Via Date
-  Canonical Source URL:
-    displayName: Canonical Source URL
-  Canonical Source Kind:
-    displayName: Canonical Source Kind
-  Canonical Source Verified:
-    displayName: Canonical Source Verified
-  Canonical Source Verified At:
-    displayName: Canonical Source Verified At
-  Canonical Source Confidence:
-    displayName: Canonical Source Confidence
+  Job Spec:
+    displayName: Job Spec
+  Job Spec Kind:
+    displayName: Job Spec Kind
+  Job Spec Verified:
+    displayName: Job Spec Verified
+  Job Spec Confidence:
+    displayName: Job Spec Confidence
   Source Status State:
     displayName: Source Status State
   Source Status Reason:
     displayName: Source Status Reason
-  Source Status Last Checked:
-    displayName: Source Status Last Checked
   file.ctime:
     displayName: Found
   file.mtime:
@@ -162,7 +154,7 @@ views:
         - file.inFolder("Job Search/Jobs")
         - or:
             - Source Status State == "pending"
-            - Canonical Source Verified == false
+            - Job Spec Verified == false
     order:
       - Company
       - Role
@@ -172,7 +164,7 @@ views:
       - file.ctime
       - file.mtime
     sort:
-      - property: Found Via Date
+      - property: file.ctime
         direction: DESC
   - type: table
     name: Source Review Queue
@@ -182,16 +174,16 @@ views:
         - or:
             - Source Status State == "needs_review"
             - Source Status State == "broken"
-            - Canonical Source URL.isEmpty()
+            - Job Spec.isEmpty()
     order:
       - Company
       - Role
       - Location
       - Source Status State
       - Source Status Reason
-      - Source Status Last Checked
+      - Job Spec
       - file.ctime
       - file.mtime
     sort:
-      - property: Source Status Last Checked
+      - property: file.mtime
         direction: ASC

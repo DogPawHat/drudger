@@ -2,17 +2,15 @@
 Company: Buildkite
 Role: Senior Design Engineer, Web
 Location: Remote (PT preferred)
-Job Spec: https://job-boards.greenhouse.io/buildkite/jobs/5103466008
 
-Found Via Type: hn
+Found Via Type: aggregator
 Found Via URL: https://news.ycombinator.com/item?id=46857488
 Found Via Ref: https://news.ycombinator.com/item?id=47000819
-Found Via Date: 2026-02-16T10:58:00Z
 
-Canonical Source URL: https://job-boards.greenhouse.io/buildkite/jobs/5103466008
-Canonical Source Kind: ats
-Canonical Source Verified: true
-Canonical Source Confidence: high
+Job Spec: https://job-boards.greenhouse.io/buildkite/jobs/5103466008
+Job Spec Kind: ats
+Job Spec Verified: true
+Job Spec Confidence: high
 
 Source Status State: verified
 

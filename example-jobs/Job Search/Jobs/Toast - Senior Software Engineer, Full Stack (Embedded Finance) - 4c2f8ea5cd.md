@@ -2,21 +2,17 @@
 Company: Toast
 Role: Senior Software Engineer, Full Stack (Embedded Finance)
 Location: Dublin (2 days/week in office)
-Job Spec: https://careers.toasttab.com/jobs/senior-software-engineer-full-stack-dublin-county-dublin-ireland-9432c3a1-36c9-47f1-b44a-656c9260e4f6?gh_jid=7571251&gh_src=f49kep1a1us
 
 Found Via Type: referral
 Found Via URL: 
 Found Via Ref: Referral via friend
-Found Via Date: 2026-02-11T10:00:00Z
 
-Canonical Source URL: https://careers.toasttab.com/jobs/senior-software-engineer-full-stack-dublin-county-dublin-ireland-9432c3a1-36c9-47f1-b44a-656c9260e4f6?gh_jid=7571251&gh_src=f49kep1a1us
-Canonical Source Kind: ats
-Canonical Source Verified: true
-Canonical Source Verified At: 2026-02-13T12:25:00Z
-Canonical Source Confidence: high
+Job Spec: https://careers.toasttab.com/jobs/senior-software-engineer-full-stack-dublin-county-dublin-ireland-9432c3a1-36c9-47f1-b44a-656c9260e4f6?gh_jid=7571251&gh_src=f49kep1a1us
+Job Spec Kind: ats
+Job Spec Verified: true
+Job Spec Confidence: high
 
 Source Status State: verified
-Source Status Last Checked: 2026-02-13T12:25:00Z
 
 Status: 💬
 Next Step: Await next steps from recruiter (tech interview stage)

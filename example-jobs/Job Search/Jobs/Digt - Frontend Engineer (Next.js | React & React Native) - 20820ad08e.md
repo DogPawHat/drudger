@@ -2,21 +2,17 @@
 Company: Digt
 Role: Frontend Engineer (Next.js | React & React Native)
 Location: Remote or Dällikon (Zurich area)
-Job Spec: https://digt.ch/jobs/frontend-engineer-50-100/
 
 Found Via Type: board
 Found Via URL: https://digt.ch/jobs/frontend-engineer-50-100/
 Found Via Ref: Reactiflux Discord job board
-Found Via Date: 2026-02-17T18:27:00Z
 
-Canonical Source URL: https://digt.ch/jobs/frontend-engineer-50-100/
-Canonical Source Kind: company_site
-Canonical Source Verified: true
-Canonical Source Verified At: 2026-02-17T18:27:00Z
-Canonical Source Confidence: high
+Job Spec: https://digt.ch/jobs/frontend-engineer-50-100/
+Job Spec Kind: company_site
+Job Spec Verified: true
+Job Spec Confidence: high
 
 Source Status State: verified
-Source Status Last Checked: 2026-02-17T18:27:00Z
 
 Status: 🔍
 Next Step: Review full job description and apply
