@@ -28,6 +28,18 @@ Uninstall:
 rm -f ~/.local/bin/drudger
 ```
 
+Install the drudger skill into an agent skills folder:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DogPawHat/drudger/main/install-skill.sh | bash
+```
+
+Install into a custom skills directory:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/DogPawHat/drudger/main/install-skill.sh | bash -s -- /path/to/agent/skills
+```
+
 To install dependencies:
 
 ```bash

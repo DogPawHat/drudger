@@ -1,35 +1,46 @@
 ---
 name: drudger
-description: Use the Job Tracker CLI as the authoritative write interface for Obsidian job records. Covers add/exists/update/find, schema validation, dedupe, filename rules, and source-integrity requirements.
+description: Use the drudger CLI as the authoritative interface for creating, checking, updating, and searching job records with schema validation and deterministic dedupe behavior.
 ---
 
-# Job Tracker
+# Drudger CLI
 
-The source of truth is the Obsidian notes under `Job Search/`, organized by `Job Tracker.base`.
+Use this skill when an agent needs to mutate or query job records through the CLI.
 
-For agents and automation, the CLI is the only authorized write interface for job records:
+For agents and automation, the CLI is the only write interface for job records:
 - file creation
 - frontmatter/property updates
 
-Direct markdown reads are allowed. Body text (content under frontmatter) may be appended/updated via normal agent tools (patch, write, edit, etc.)
+Direct markdown reads are allowed. Body text (content under frontmatter) may be appended or edited via normal agent tools when needed.
 
 ## Interface Rules
 
 - Use CLI commands for all job record mutations.
 - Do not manually create job files or manually edit frontmatter properties.
-- Validate all `add` and `update` payloads through Zod-backed CLI schemas.
-- Surface validation/duplicate/not-found errors directly; do not silently coerce.
+- Validate all `add` and `update` payloads through the CLI schemas.
+- Surface validation, duplicate, and not-found errors directly.
 
 ## Installation and Availability
 
-- Check that the CLI is available before running workflow commands:
+- Verify the executable is installed and callable:
 
 ```bash
 command -v drudger >/dev/null 2>&1 && drudger --help
 ```
 
-- If `drudger` is not found, install it using this repository's documented install flow (see `README.md`), then rerun the check.
-- Expected binary location is typically `~/.local/bin/drudger`; ensure `~/.local/bin` is on `PATH`.
+- If `drudger` is missing, follow this repository's install instructions in `README.md`, then rerun the check.
+- Expected binary path is typically `~/.local/bin/drudger`; ensure `~/.local/bin` is on `PATH`.
+
+## Vault Root Requirement
+
+- Always pass `--vault-root` explicitly in automation and agent runs.
+- Use this default unless the user provides another path:
+
+```bash
+--vault-root ~/obsidian/vault
+```
+
+- This avoids environment drift and ensures deterministic behavior across hosts.
 
 ## Frontmatter Schema
 
@@ -60,29 +71,29 @@ Notes:
 ## CLI Commands
 
 Global options:
-- `--vault-root <path>` (default `~/obsidian/crabpot`)
+- `--vault-root <path>` (always provide explicitly)
 - `--format json|text` (default `json`)
 - `--quiet` (text mode only)
 
 `exists`
-- `drudger exists --job-spec-url <url> [--vault-root <path>] [--format json|text]`
-- Normalizes URL and checks for existing match.
+- `drudger exists --vault-root <path> --job-spec-url <url> [--format json|text]`
+- Normalizes URL and checks for an existing match.
 - Exit codes: `0` success, `2` validation error, `5` storage/read error.
 
 `add`
-- `drudger add --input <json-or-file-ref> [--vault-root <path>] [--format json|text]`
+- `drudger add --vault-root <path> --input <json-or-file-ref> [--format json|text]`
 - Always runs dedupe check on job spec URL.
-- On duplicate returns conflict with exit code `3`.
+- On duplicate, returns conflict with exit code `3`.
 - Exit codes: `0` created, `2` validation error, `3` duplicate, `5` storage/write error.
 
 `update`
-- `drudger update --id <id> --patch <json-or-file-ref> [--vault-root <path>] [--format json|text]`
+- `drudger update --vault-root <path> --id <id> --patch <json-or-file-ref> [--format json|text]`
 - Applies partial patch, then revalidates full record.
 - If `Job Spec` changes, reruns dedupe conflict check.
 - Exit codes: `0` updated, `2` validation error, `3` duplicate, `4` not found, `5` storage/write error.
 
 `find`
-- `drudger find --query <text> [--status <emoji>] [--limit <n>] [--vault-root <path>] [--format json|text]`
+- `drudger find --vault-root <path> --query <text> [--status <emoji>] [--limit <n>] [--format json|text]`
 - Search fields: `Company`, `Role`, `Location`, `Notes`, `Found Via Ref`, `Job Spec`.
 - Default limit `20`, max `200`.
 - Exit codes: `0` executed, `2` invalid args, `5` storage/read error.
@@ -96,9 +107,6 @@ Global options:
 
 ## Filename Contract
 
-Storage root:
-- `${vaultRoot}/Job Search/Jobs`
-
 Filename format:
 - `{Company} - {Role} - {dedupeKey}.md`
 - Replace `/` with `-`.
@@ -107,28 +115,24 @@ Filename format:
 - `first10(sha256(normalize_url(job_spec_url)))`
 
 Rename behavior:
-- On update, if `Company`, `Role`, or the URL used for `dedupeKey` changes, rename the file to match recomputed filename.
-- If collision still occurs, append ` (2)`, ` (3)`, etc.
-
-## Source Integrity Rules
-
-- Never use aggregator thread URLs as `Job Spec` unless the posting actually lives there.
-- `Found Via Ref` must be human-readable context (not a raw numeric ID only).
-- If source evidence is contradictory or broken, set `Source Status State: needs_review` and record a clear `Source Status Reason`.
+- On update, if `Company`, `Role`, or the URL used for `dedupeKey` changes, rename to the recomputed filename.
+- If collision occurs, append ` (2)`, ` (3)`, etc.
 
 ## Standard Workflows
 
 Add flow:
-1. Determine job spec URL.
-2. Run `exists` with job spec URL.
-3. If no match, run `add` with a payload that matches this schema.
-4. If duplicate, stop and use existing record metadata.
+1. Validate `drudger` availability.
+2. Resolve and pass `--vault-root` explicitly.
+3. Run `exists` with job spec URL.
+4. If no match, run `add` with schema-valid payload.
+5. If duplicate, stop and use existing record metadata.
 
 Update flow:
-1. Locate target by `id`.
-2. Run `update --patch` with only intended changes.
-3. If `Job Spec` changes, handle duplicate conflict if returned.
-4. If filename-driving fields change, expect rename.
+1. Validate `drudger` availability.
+2. Resolve and pass `--vault-root` explicitly.
+3. Locate target by `id`.
+4. Run `update --patch` with only intended changes.
+5. If `Job Spec` changes, handle duplicate conflicts if returned.
 
 ## Build/Runtime Constraints
 
