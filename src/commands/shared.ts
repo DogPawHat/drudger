@@ -71,6 +71,10 @@ export function getFormat(options: Map<string, string | true>): "json" | "text" 
   return "json";
 }
 
+export function getQuiet(options: Map<string, string | true>): boolean {
+  return options.has("--quiet");
+}
+
 export function getVaultRoot(options: Map<string, string | true>): string {
   const fromFlag = getStringOption(options, "--vault-root");
   if (fromFlag) {

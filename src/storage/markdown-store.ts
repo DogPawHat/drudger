@@ -17,13 +17,17 @@ export type StoredJob = {
   body: string;
 };
 
+type ReadOptions = {
+  suppressWarnings?: boolean;
+};
+
 async function atomicWrite(fullPath: string, content: string): Promise<void> {
   const tempPath = `${fullPath}.tmp-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   await Bun.write(tempPath, content);
   await rename(tempPath, fullPath);
 }
 
-async function readAllMarkdownFiles(vaultRoot: string): Promise<StoredJob[]> {
+async function readAllMarkdownFiles(vaultRoot: string, options: ReadOptions = {}): Promise<StoredJob[]> {
   const jobsDir = resolveJobsDirectory(vaultRoot);
 
   const normalizeLegacyNullableFields = (frontmatter: Record<string, unknown>): Record<string, unknown> => {
@@ -66,7 +70,9 @@ async function readAllMarkdownFiles(vaultRoot: string): Promise<StoredJob[]> {
           const field = issue.path.join(".");
           return field ? `${field}: ${issue.message}` : issue.message;
         });
-        warnSkippedFile(toRelativeJobPath(vaultRoot, fullPath), issues);
+        if (!options.suppressWarnings) {
+          warnSkippedFile(toRelativeJobPath(vaultRoot, fullPath), issues);
+        }
         continue;
       }
 
@@ -128,20 +134,28 @@ function duplicateConflict(existing: StoredJob): never {
   ]);
 }
 
-export async function findByJobSpec(vaultRoot: string, jobSpecUrl: string): Promise<StoredJob | null> {
+export async function findByJobSpec(
+  vaultRoot: string,
+  jobSpecUrl: string,
+  options: ReadOptions = {},
+): Promise<StoredJob | null> {
   const id = computeRecordId(jobSpecUrl);
-  const jobs = await readAllMarkdownFiles(vaultRoot);
+  const jobs = await readAllMarkdownFiles(vaultRoot, options);
   return jobs.find((job) => job.id === id) ?? null;
 }
 
-export async function addJob(vaultRoot: string, input: AddInput): Promise<StoredJob> {
+export async function addJob(
+  vaultRoot: string,
+  input: AddInput,
+  options: ReadOptions = {},
+): Promise<StoredJob> {
   const jobsDir = resolveJobsDirectory(vaultRoot);
   const id = computeRecordId(input["Job Spec"]);
   const dedupeKey = computeUrlDedupeKey(input["Job Spec"]);
 
   return withFileLock(join(jobsDir, ".mutations.lock"), async () => {
     await mkdir(jobsDir, { recursive: true });
-    const existing = await findByJobSpec(vaultRoot, input["Job Spec"]);
+    const existing = await findByJobSpec(vaultRoot, input["Job Spec"], options);
     if (existing) {
       duplicateConflict(existing);
     }
@@ -169,9 +183,10 @@ export async function findJobs(
   query: string,
   status?: string,
   limit = 20,
+  options: ReadOptions = {},
 ): Promise<StoredJob[]> {
   const loweredQuery = query.toLowerCase();
-  const jobs = await readAllMarkdownFiles(vaultRoot);
+  const jobs = await readAllMarkdownFiles(vaultRoot, options);
 
   return jobs
     .filter((job) => {
@@ -195,11 +210,16 @@ export async function findJobs(
     .slice(0, limit);
 }
 
-export async function updateJob(vaultRoot: string, id: string, patch: UpdatePatch): Promise<StoredJob> {
+export async function updateJob(
+  vaultRoot: string,
+  id: string,
+  patch: UpdatePatch,
+  options: ReadOptions = {},
+): Promise<StoredJob> {
   const jobsDir = resolveJobsDirectory(vaultRoot);
 
   return withFileLock(join(jobsDir, ".mutations.lock"), async () => {
-    const jobs = await readAllMarkdownFiles(vaultRoot);
+    const jobs = await readAllMarkdownFiles(vaultRoot, options);
     const current = jobs.find((job) => job.id === id);
 
     if (!current) {

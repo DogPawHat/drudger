@@ -3,6 +3,7 @@ import { runExists } from "./commands/exists";
 import { runFind } from "./commands/find";
 import {
   getFormat,
+  getQuiet,
   getStringOption,
   getVaultRoot,
   parseArgs,
@@ -26,6 +27,7 @@ function globalHelp(): string {
     "Global options:",
     "  --vault-root <path>   Vault root path (default: ~/obsidian/crabpot)",
     "  --format json|text    Output format (default: json)",
+    "  --quiet               Suppress non-error logs in text mode",
     "  --help, -h            Show help",
   ].join("\n");
 }
@@ -117,7 +119,9 @@ async function main(): Promise<number> {
 
   const args = parseArgs(rawArgs);
   const format = getFormat(args.options);
+  const quiet = getQuiet(args.options);
   const vaultRoot = getVaultRoot(args.options);
+  const suppressWarnings = format === "text" && quiet;
 
   if (args.command === "exists") {
     const jobSpecUrl = getStringOption(
@@ -133,7 +137,7 @@ async function main(): Promise<number> {
       throw new CliError("VALIDATION_ERROR", "Missing --job-spec-url");
     }
 
-    const payload = await runExists(vaultRoot, jobSpecUrl, usedAlias);
+    const payload = await runExists(vaultRoot, jobSpecUrl, usedAlias, { suppressWarnings });
     printSuccess(format, payload);
     return 0;
   }
@@ -144,7 +148,7 @@ async function main(): Promise<number> {
       throw new CliError("VALIDATION_ERROR", "Missing --input");
     }
 
-    const payload = await runAdd(vaultRoot, await parseJsonInput(inputRaw));
+    const payload = await runAdd(vaultRoot, await parseJsonInput(inputRaw), { suppressWarnings });
     printSuccess(format, payload);
     return 0;
   }
@@ -159,7 +163,7 @@ async function main(): Promise<number> {
       query,
       status: getStringOption(args.options, "--status"),
       limit: getStringOption(args.options, "--limit"),
-    });
+    }, { suppressWarnings });
     printSuccess(format, payload);
     return 0;
   }
@@ -176,7 +180,9 @@ async function main(): Promise<number> {
       throw new CliError("VALIDATION_ERROR", "Missing --patch");
     }
 
-    const payload = await runUpdate(vaultRoot, id, await parseJsonInput(patchRaw));
+    const payload = await runUpdate(vaultRoot, id, await parseJsonInput(patchRaw), {
+      suppressWarnings,
+    });
     printSuccess(format, payload);
     return 0;
   }

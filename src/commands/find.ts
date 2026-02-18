@@ -2,9 +2,14 @@ import { CliError } from "../core/errors";
 import { FindQuerySchema } from "../core/schema";
 import { findJobs } from "../storage/markdown-store";
 
+type CommandOptions = {
+  suppressWarnings?: boolean;
+};
+
 export async function runFind(
   vaultRoot: string,
   queryInput: Record<string, unknown>,
+  options: CommandOptions = {},
 ): Promise<unknown> {
   const parsed = FindQuerySchema.safeParse(queryInput);
   if (!parsed.success) {
@@ -12,10 +17,12 @@ export async function runFind(
   }
 
   const query = parsed.data;
-  const jobs = await findJobs(vaultRoot, query.query, query.status, query.limit);
+  const jobs = await findJobs(vaultRoot, query.query, query.status, query.limit, options);
+  const message = `${jobs.length} result${jobs.length === 1 ? "" : "s"} found`;
 
   return {
     ok: true,
+    message,
     results: jobs.map((job) => ({
       id: job.id,
       path: job.path,
