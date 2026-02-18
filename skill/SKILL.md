@@ -80,9 +80,8 @@ Global options:
 
 - Primary dedupe key is normalized `Job Spec`.
 - Always call `exists` before `add`.
-- Internal record ID for responses/lookups:
-  - `id = sha256(lowercase(trim(job_spec_url)))` when job spec URL exists.
-  - fallback: `sha256(normalized_company + "|" + normalized_role + "|" + normalized_location)`.
+- Treat record `id` as a CLI-owned opaque identifier for lookup/update workflows.
+- Do not derive or guess `id` in agent logic; use IDs returned by CLI responses.
 
 ## Filename Contract
 
