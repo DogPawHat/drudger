@@ -5,7 +5,7 @@ Location: Remote (30 hour week, full time pay)
 
 Found Via Type: aggregator
 Found Via URL: https://news.ycombinator.com/item?id=46857488
-Found Via Ref: https://news.ycombinator.com/item?id=46961849
+Found Via Ref: Public listing
 
 Job Spec: https://apply.workable.com/cliniko/j/F99FC13BB2/
 Job Spec Kind: ats
@@ -16,5 +16,5 @@ Source Status State: verified
 
 Status: 📝
 Next Step: Await response from Cliniko hiring team
-Notes: Application sent on 2026-02-13 via Workable. Rails backend transitioning to React frontend. 30-hour week with full-time pay. Fully remote, 63 people, base in Melbourne. Practice management software for allied health professionals.
+Notes: Remote React role with reduced weekly hours and full-time compensation.
 ---

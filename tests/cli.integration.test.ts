@@ -560,6 +560,6 @@ test("subcommand help prints command-specific usage", () => {
   const result = runCli(["add", "--help"]);
 
   expect(result.exitCode).toBe(0);
-  expect(result.stdout.includes("Usage: drudger add --input <json-or-file-ref>")).toBe(true);
+  expect(result.stdout.includes("Usage: drudger add --vault-root <path> --input <json-or-file-ref>")).toBe(true);
   expect(result.stdout.includes("--input")).toBe(true);
 });

@@ -18,5 +18,5 @@
 ![[Job Tracker.base#Offer]]
 
 ## Filters
-- **Want**: Senior/Staff, React/Node/TS, Remote or Dublin, 9-5 hours
-- **Avoid**: Crypto, gambling, pre-revenue startups, weekend work
+- **Want**: Senior/Staff engineering roles, modern web stack, sustainable team practices
+- **Avoid**: Roles with unclear scope, unstable sourcing, or poor work-life boundaries

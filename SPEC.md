@@ -17,8 +17,8 @@ In scope:
 - Check for existing jobs.
 - Update jobs.
 - Query jobs.
-- Preserve existing markdown storage format under `~/obsidian/crabpot/Job Search/Jobs/`.
-- Preserve compatibility with `~/obsidian/crabpot/Job Search/Job Tracker.base` organization and property/view expectations.
+- Preserve existing markdown storage format under `~/obsidian/false/Job Search/Jobs/`.
+- Preserve compatibility with `~/obsidian/false/Job Search/Job Tracker.base` organization and property/view expectations.
 - Enforce source-integrity and schema validation.
 
 Out of scope:
@@ -145,7 +145,7 @@ Command behavior:
 ## 7. CLI Command Spec
 
 Global options:
-- `--vault-root <path>` default: `~/obsidian/crabpot`
+- `--vault-root <path>` required (default: `false`)
 - `--format json|text` default: `json`
 - `--quiet` suppress non-error logs in text mode
 - Backward-compatible flag alias (temporary): `--canonical-source-url` is accepted as an alias for `--job-spec-url`.
@@ -155,7 +155,7 @@ Global options:
 Command:
 
 ```bash
-drudger exists --job-spec-url <url> [--vault-root <path>] [--format json|text]
+drudger exists --vault-root <path> --job-spec-url <url> [--format json|text]
 ```
 
 Compatibility:
@@ -194,7 +194,7 @@ Exit codes:
 Command:
 
 ```bash
-drudger add --input <json-or-file-ref> [--vault-root <path>] [--format json|text]
+drudger add --vault-root <path> --input <json-or-file-ref> [--format json|text]
 ```
 
 Input contract:
@@ -220,7 +220,7 @@ Exit codes:
 Command:
 
 ```bash
-drudger update --id <id> --patch <json-or-file-ref> [--vault-root <path>] [--format json|text]
+drudger update --vault-root <path> --id <id> --patch <json-or-file-ref> [--format json|text]
 ```
 
 Behavior:
@@ -242,7 +242,7 @@ Exit codes:
 Command:
 
 ```bash
-drudger find --query <text> [--status <emoji>] [--limit <n>] [--vault-root <path>] [--format json|text]
+drudger find --vault-root <path> --query <text> [--status <emoji>] [--limit <n>] [--format json|text]
 ```
 
 Behavior:

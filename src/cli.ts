@@ -25,7 +25,7 @@ function globalHelp(): string {
     "  help    Show help for command",
     "",
     "Global options:",
-    "  --vault-root <path>   Vault root path (default: ~/obsidian/crabpot)",
+    "  --vault-root <path>   Obsidian vault path (required)",
     "  --format json|text    Output format (default: json)",
     "  --quiet               Suppress non-error logs in text mode",
     "  --help, -h            Show help",
@@ -35,48 +35,48 @@ function globalHelp(): string {
 function commandHelp(command: string): string {
   if (command === "exists") {
     return [
-      "Usage: drudger exists --job-spec-url <url> [options]",
+      "Usage: drudger exists --vault-root <path> --job-spec-url <url> [options]",
       "",
       "Options:",
+      "  --vault-root <path>",
       "  --job-spec-url <url>",
       "  --canonical-source-url <url>   Deprecated alias",
-      "  --vault-root <path>",
       "  --format json|text",
     ].join("\n");
   }
 
   if (command === "add") {
     return [
-      "Usage: drudger add --input <json-or-file-ref> [options]",
+      "Usage: drudger add --vault-root <path> --input <json-or-file-ref> [options]",
       "",
       "Options:",
-      "  --input <json-or-file-ref>",
       "  --vault-root <path>",
+      "  --input <json-or-file-ref>",
       "  --format json|text",
     ].join("\n");
   }
 
   if (command === "update") {
     return [
-      "Usage: drudger update --id <id> --patch <json-or-file-ref> [options]",
+      "Usage: drudger update --vault-root <path> --id <id> --patch <json-or-file-ref> [options]",
       "",
       "Options:",
+      "  --vault-root <path>",
       "  --id <id>",
       "  --patch <json-or-file-ref>",
-      "  --vault-root <path>",
       "  --format json|text",
     ].join("\n");
   }
 
   if (command === "find") {
     return [
-      "Usage: drudger find --query <text> [options]",
+      "Usage: drudger find --vault-root <path> --query <text> [options]",
       "",
       "Options:",
+      "  --vault-root <path>",
       "  --query <text>",
       "  --status <emoji>",
       "  --limit <n>",
-      "  --vault-root <path>",
       "  --format json|text",
     ].join("\n");
   }
@@ -120,10 +120,10 @@ async function main(): Promise<number> {
   const args = parseArgs(rawArgs);
   const format = getFormat(args.options);
   const quiet = getQuiet(args.options);
-  const vaultRoot = getVaultRoot(args.options);
   const suppressWarnings = format === "text" && quiet;
 
   if (args.command === "exists") {
+    const vaultRoot = getVaultRoot(args.options);
     const jobSpecUrl = getStringOption(
       args.options,
       "--job-spec-url",
@@ -143,6 +143,7 @@ async function main(): Promise<number> {
   }
 
   if (args.command === "add") {
+    const vaultRoot = getVaultRoot(args.options);
     const inputRaw = getStringOption(args.options, "--input");
     if (!inputRaw) {
       throw new CliError("VALIDATION_ERROR", "Missing --input");
@@ -154,6 +155,7 @@ async function main(): Promise<number> {
   }
 
   if (args.command === "find") {
+    const vaultRoot = getVaultRoot(args.options);
     const query = getStringOption(args.options, "--query");
     if (!query) {
       throw new CliError("VALIDATION_ERROR", "Missing --query");
@@ -169,6 +171,7 @@ async function main(): Promise<number> {
   }
 
   if (args.command === "update") {
+    const vaultRoot = getVaultRoot(args.options);
     const id = getStringOption(args.options, "--id");
     const patchRaw = getStringOption(args.options, "--patch");
 

@@ -12,14 +12,11 @@ type CliResult = {
   stderr: string;
 };
 
-function runCliWithoutHome(args: string[]): CliResult {
+function runCli(args: string[]): CliResult {
   const proc = Bun.spawnSync({
     cmd: ["bun", "run", CLI_PATH, ...args],
     cwd: REPO_ROOT,
-    env: {
-      ...process.env,
-      HOME: "",
-    },
+    env: process.env,
     stdout: "pipe",
     stderr: "pipe",
   });
@@ -35,13 +32,13 @@ function parseJsonOutput(stdout: string): any {
   return JSON.parse(stdout);
 }
 
-test("missing HOME without --vault-root returns clear validation error", () => {
-  const result = runCliWithoutHome(["exists", "--job-spec-url", "https://example.com/jobs/123"]);
+test("missing --vault-root returns clear validation error", () => {
+  const result = runCli(["exists", "--job-spec-url", "https://example.com/jobs/123"]);
 
   expect(result.exitCode).toBe(2);
   const payload = parseJsonOutput(result.stdout);
   expect(payload.ok).toBe(false);
   expect(payload.error.code).toBe("VALIDATION_ERROR");
   expect(payload.error.message.includes("--vault-root")).toBe(true);
-  expect(payload.error.message.includes("HOME")).toBe(true);
+  expect(payload.error.message.includes("Obsidian vault")).toBe(true);
 });
