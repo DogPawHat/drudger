@@ -38,7 +38,9 @@ jobs:
         run: dist/drudger-linux-x64 --help
 
       - name: Generate checksums
-        run: sha256sum dist/drudger-* > dist/sha256sums.txt
+        run: |
+          cd dist
+          sha256sum drudger-* > sha256sums.txt
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2

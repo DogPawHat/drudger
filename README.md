@@ -11,7 +11,7 @@ curl -fsSL https://raw.githubusercontent.com/DogPawHat/drudger/main/install.sh |
 Install a specific version:
 
 ```bash
-DRUDGER_VERSION=v0.1.0 curl -fsSL https://raw.githubusercontent.com/DogPawHat/drudger/main/install.sh | bash
+DRUDGER_VERSION=v0.1.1 curl -fsSL https://raw.githubusercontent.com/DogPawHat/drudger/main/install.sh | bash
 ```
 
 By default, the installer writes to `~/.local/bin/drudger`.

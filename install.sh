@@ -64,11 +64,7 @@ verify_checksum() {
   asset_name="$(basename "$file_path")"
 
   local expected
-  expected="$(grep "  $asset_name$" "$checksums_path" | awk '{print $1}')"
-
-  if [ -z "$expected" ]; then
-    expected="$(grep " $asset_name$" "$checksums_path" | awk '{print $1}')"
-  fi
+  expected="$(awk -v name="$asset_name" '$2 == name || $2 == ("./" name) || $2 ~ ("/" name "$") { print $1; exit }' "$checksums_path")"
 
   if [ -z "$expected" ]; then
     echo "Error: checksum entry for $asset_name not found." >&2
@@ -93,6 +89,7 @@ verify_checksum() {
 
 main() {
   require_cmd curl
+  require_cmd install
 
   local os
   os="$(detect_os)"
@@ -104,7 +101,7 @@ main() {
   tag="$(resolve_tag)"
   local download_base="https://github.com/$OWNER/$REPO/releases/download/$tag"
 
-  local tmp_dir
+  tmp_dir=""
   tmp_dir="$(mktemp -d)"
   trap 'rm -rf "$tmp_dir"' EXIT
 
