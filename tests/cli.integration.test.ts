@@ -29,6 +29,27 @@ function runCli(args: string[]): CliResult {
   };
 }
 
+async function runCliAsync(args: string[]): Promise<CliResult> {
+  const proc = Bun.spawn({
+    cmd: ["bun", "run", CLI_PATH, ...args],
+    cwd: REPO_ROOT,
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+
+  const [exitCode, stdout, stderr] = await Promise.all([
+    proc.exited,
+    new Response(proc.stdout).text(),
+    new Response(proc.stderr).text(),
+  ]);
+
+  return {
+    exitCode,
+    stdout: stdout.trim(),
+    stderr: stderr.trim(),
+  };
+}
+
 function parseJsonOutput(stdout: string): any {
   return JSON.parse(stdout);
 }
@@ -392,8 +413,7 @@ test("concurrent updates do not corrupt markdown", async () => {
     ]);
     const id = parseJsonOutput(added.stdout).created.id;
 
-    const first = Promise.resolve(
-      runCli([
+    const first = runCliAsync([
         "update",
         "--vault-root",
         vault.rootPath,
@@ -401,10 +421,8 @@ test("concurrent updates do not corrupt markdown", async () => {
         id,
         "--patch",
         JSON.stringify({ Notes: "A" }),
-      ]),
-    );
-    const second = Promise.resolve(
-      runCli([
+      ]);
+    const second = runCliAsync([
         "update",
         "--vault-root",
         vault.rootPath,
@@ -412,8 +430,7 @@ test("concurrent updates do not corrupt markdown", async () => {
         id,
         "--patch",
         JSON.stringify({ Notes: "B" }),
-      ]),
-    );
+      ]);
 
     const [a, b] = await Promise.all([first, second]);
     expect(a.exitCode).toBe(0);
@@ -434,6 +451,16 @@ test("concurrent updates do not corrupt markdown", async () => {
   } finally {
     await vault.cleanup();
   }
+});
+
+test("unknown command returns available command hint", () => {
+  const result = runCli(["bogus"]);
+
+  expect(result.exitCode).toBe(2);
+  const payload = parseJsonOutput(result.stdout);
+  expect(payload.ok).toBe(false);
+  expect(payload.error.code).toBe("VALIDATION_ERROR");
+  expect(payload.error.message.includes("Available commands")).toBe(true);
 });
 
 test("root help prints usage and exits successfully", () => {

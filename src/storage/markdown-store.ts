@@ -2,7 +2,7 @@ import { mkdir, readdir, rename } from "node:fs/promises";
 import { join } from "node:path";
 import { computeRecordId, computeUrlDedupeKey } from "../core/dedupe";
 import { CliError } from "../core/errors";
-import { type AddInput, JobRecordSchema, type UpdatePatch } from "../core/schema";
+import { type AddInput, type JobRecord, JobRecordSchema, type UpdatePatch } from "../core/schema";
 import { parseMarkdownNote } from "./parser";
 import { serializeMarkdownNote } from "./serializer";
 import { buildJobFileBaseName, resolveJobsDirectory, toRelativeJobPath } from "./paths";
@@ -13,7 +13,7 @@ export type StoredJob = {
   dedupeKey: string;
   path: string;
   fullPath: string;
-  record: Record<string, unknown>;
+  record: JobRecord;
   body: string;
 };
 

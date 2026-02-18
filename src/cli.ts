@@ -181,7 +181,10 @@ async function main(): Promise<number> {
     return 0;
   }
 
-  throw new CliError("VALIDATION_ERROR", `Unknown command: ${args.command}`);
+  throw new CliError(
+    "VALIDATION_ERROR",
+    `Unknown command: ${args.command}. Available commands: exists, add, update, find, help`,
+  );
 }
 
 main()
