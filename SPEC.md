@@ -4,7 +4,11 @@
 
 Build a standalone CLI package for managing the Obsidian job tracker with strict input validation and deterministic dedupe behavior.
 
-The CLI is the only allowed write/read interface for job records. Agents and automation must call this CLI instead of editing markdown directly.
+The source of truth is the Obsidian notes under `Job Search/`, organized by `Job Tracker.base` (reference layout: `example-jobs/Job Search/`).
+
+For agents and automation, the CLI is the only authorized write interface for job records (file creation and frontmatter/property updates). Agents and automation must call this CLI instead of editing markdown directly.
+
+Direct reads of markdown are allowed. The CLI may also append/update body text (content under frontmatter) directly in an existing job file when needed.
 
 ## 2. Scope
 
@@ -14,6 +18,7 @@ In scope:
 - Update jobs.
 - Query jobs.
 - Preserve existing markdown storage format under `~/obsidian/crabpot/Job Search/Jobs/`.
+- Preserve compatibility with `~/obsidian/crabpot/Job Search/Job Tracker.base` organization and property/view expectations.
 - Enforce source-integrity and schema validation.
 
 Out of scope:
@@ -27,7 +32,7 @@ Out of scope:
 - Runtime/build tool: Bun.
 - Binary output: Bun-compiled executable.
 - Runtime dependency policy: `zod` only.
-- No direct consumer writes to markdown files; all writes go through CLI commands.
+- Only the CLI may create job files or modify frontmatter/properties.
 
 Build command:
 
@@ -115,6 +120,14 @@ Validation rules:
 - `Status` is enum of exact emojis.
 - `Company`, `Role`, and `Canonical Source URL` are required for `add`.
 
+## 5.4 Current Note Schema Differences (Informational Only)
+
+The canonical contract in Sections 5.1-5.3 remains unchanged for now. The current notes in `example-jobs/Job Search/Jobs/` and the `.base` file indicate active schema differences that should be tracked but not implemented in this spec yet:
+
+- Additional fields currently present in notes and `Job Tracker.base`: `Job Spec`, `Found Via Date`, `Canonical Source Verified At`, `Source Status Last Checked`.
+- `Found Via Type` currently includes `hn`, which is not yet listed in the spec enum.
+- `Canonical Source Kind` currently includes `aggregator`, which is not yet listed in the spec enum.
+
 ## 6. Dedupe Contract
 
 Primary key:
@@ -159,7 +172,7 @@ JSON success output:
   "exists": true,
   "match": {
     "id": "string",
-    "path": "Job Search/Jobs/Company - Role.md",
+    "path": "Job Search/Jobs/Company - Role - ab12cd34ef.md",
     "company": "Company",
     "role": "Role",
     "status": "🔍",
@@ -190,7 +203,7 @@ Input contract:
 Behavior:
 - Run dedupe check on `Canonical Source URL`.
 - If conflict, return existing record and fail with exit code `3`.
-- If create allowed, generate markdown filename `Job Search/Jobs/{Company} - {Role}.md` with slash replacement.
+- If create allowed, generate markdown filename `Job Search/Jobs/{Company} - {Role} - {dedupeKey}.md` with slash replacement.
 - Persist frontmatter and existing body (empty on create unless `body` provided).
 
 Exit codes:
@@ -212,6 +225,7 @@ Behavior:
 - Apply partial patch.
 - Revalidate full record through `JobRecordSchema`.
 - If patch changes canonical URL, rerun dedupe conflict check against other records.
+- If patch changes `Job Spec` (or changes the URL used to derive `dedupeKey`), recompute `dedupeKey` and rename the file to match the filename rule.
 
 Exit codes:
 - `0`: updated.
@@ -245,9 +259,13 @@ Storage root:
 - `${vaultRoot}/Job Search/Jobs`
 
 Filename rule:
-- `{Company} - {Role}.md`
+- `{Company} - {Role} - {dedupeKey}.md`
 - Replace `/` with `-`.
-- If collision with different record, append ` (2)`, ` (3)`, etc.
+- `dedupeKey` is derived from URL hash:
+  - `dedupeKey = first10(sha256(normalize_url(job_spec_url)))`.
+  - Until `Job Spec` is part of the canonical schema, if `Job Spec` is unavailable, fallback to `first10(sha256(normalize_url(canonical_source_url)))`.
+- If collision still occurs (extremely unlikely), append ` (2)`, ` (3)`, etc.
+- On update, if `Company`, `Role`, or the URL used for `dedupeKey` changes, the file must be renamed to the newly computed filename.
 
 Markdown format:
 - YAML frontmatter first.
@@ -312,7 +330,7 @@ No hidden coercion:
 Unit tests:
 - Zod schemas (valid/invalid cases).
 - URL normalization and dedupe equality.
-- Filename sanitization/collision behavior.
+- Filename sanitization and URL-based dedupe key generation.
 - Error-to-exit-code mapping.
 
 Integration tests:
