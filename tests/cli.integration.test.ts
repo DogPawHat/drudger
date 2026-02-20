@@ -54,6 +54,98 @@ function parseJsonOutput(stdout: string): any {
   return JSON.parse(stdout);
 }
 
+test("add without Status defaults to interested emoji", async () => {
+  const vault = await createTempVault();
+
+  try {
+    const add = runCli([
+      "add",
+      "--vault-root",
+      vault.rootPath,
+      "--input",
+      JSON.stringify({
+        Company: "DefaultStatus",
+        Role: "Engineer",
+        "Job Spec": "https://example.com/jobs/default-status",
+      }),
+    ]);
+
+    expect(add.exitCode).toBe(0);
+    const addPayload = parseJsonOutput(add.stdout);
+    expect(addPayload.ok).toBe(true);
+    expect(addPayload.created.status).toBe("🔍");
+
+    const filePath = join(vault.rootPath, addPayload.created.path);
+    const content = await Bun.file(filePath).text();
+    expect(content.includes("Status: 🔍")).toBe(true);
+  } finally {
+    await vault.cleanup();
+  }
+});
+
+test("add with explicit applied Status preserves provided value", async () => {
+  const vault = await createTempVault();
+
+  try {
+    const add = runCli([
+      "add",
+      "--vault-root",
+      vault.rootPath,
+      "--input",
+      JSON.stringify({
+        Company: "ExplicitStatus",
+        Role: "Engineer",
+        "Job Spec": "https://example.com/jobs/explicit-status",
+        Status: "📝",
+      }),
+    ]);
+
+    expect(add.exitCode).toBe(0);
+    const addPayload = parseJsonOutput(add.stdout);
+    expect(addPayload.ok).toBe(true);
+    expect(addPayload.created.status).toBe("📝");
+
+    const filePath = join(vault.rootPath, addPayload.created.path);
+    const content = await Bun.file(filePath).text();
+    expect(content.includes("Status: 📝")).toBe(true);
+  } finally {
+    await vault.cleanup();
+  }
+});
+
+test("add with explicit interested Status preserves provided value", async () => {
+  const vault = await createTempVault();
+
+  try {
+    const addInterested = runCli([
+      "add",
+      "--vault-root",
+      vault.rootPath,
+      "--input",
+      JSON.stringify({
+        Company: "ExplicitInterestedStatus",
+        Role: "Engineer",
+        "Job Spec": "https://example.com/jobs/explicit-interested-status",
+        Status: "🔍",
+      }),
+    ]);
+
+    expect(addInterested.exitCode).toBe(0);
+    const addInterestedPayload = parseJsonOutput(addInterested.stdout);
+    expect(addInterestedPayload.ok).toBe(true);
+    expect(addInterestedPayload.created.status).toBe("🔍");
+
+    const interestedFilePath = join(
+      vault.rootPath,
+      addInterestedPayload.created.path,
+    );
+    const interestedContent = await Bun.file(interestedFilePath).text();
+    expect(interestedContent.includes("Status: 🔍")).toBe(true);
+  } finally {
+    await vault.cleanup();
+  }
+});
+
 test("add creates a note under Job Search/Jobs and exists finds it", async () => {
   const vault = await createTempVault();
 
@@ -75,7 +167,9 @@ test("add creates a note under Job Search/Jobs and exists finds it", async () =>
     const addPayload = parseJsonOutput(add.stdout);
     expect(addPayload.ok).toBe(true);
     expect(addPayload.created.path.startsWith("Job Search/Jobs/")).toBe(true);
-    expect(addPayload.created.path.includes("Acme-Corp - Engineer - ")).toBe(true);
+    expect(addPayload.created.path.includes("Acme-Corp - Engineer - ")).toBe(
+      true,
+    );
 
     const filePath = join(vault.rootPath, addPayload.created.path);
     expect(existsSync(filePath)).toBe(true);
@@ -323,7 +417,9 @@ test("update detects conflict when Job Spec changes to existing one", async () =
     ]);
 
     expect(conflict.exitCode).toBe(3);
-    expect(parseJsonOutput(conflict.stdout).error.code).toBe("DUPLICATE_CONFLICT");
+    expect(parseJsonOutput(conflict.stdout).error.code).toBe(
+      "DUPLICATE_CONFLICT",
+    );
   } finally {
     await vault.cleanup();
   }
@@ -350,7 +446,10 @@ test("update renames file and applies collision fallback suffix", async () => {
     const dedupeKey = payload.created.dedupeKey;
     const jobsDir = join(vault.rootPath, "Job Search", "Jobs");
     const collisionPath = join(jobsDir, `NewCo - NewRole - ${dedupeKey}.md`);
-    await Bun.write(collisionPath, "---\nCompany: Placeholder\nRole: Placeholder\nJob Spec: https://example.com/jobs/placeholder\n---\n\n");
+    await Bun.write(
+      collisionPath,
+      "---\nCompany: Placeholder\nRole: Placeholder\nJob Spec: https://example.com/jobs/placeholder\n---\n\n",
+    );
 
     const updated = runCli([
       "update",
@@ -367,9 +466,11 @@ test("update renames file and applies collision fallback suffix", async () => {
 
     expect(updated.exitCode).toBe(0);
     const updatedPayload = parseJsonOutput(updated.stdout);
-    expect(updatedPayload.updated.path.endsWith(`NewCo - NewRole - ${dedupeKey} (2).md`)).toBe(
-      true,
-    );
+    expect(
+      updatedPayload.updated.path.endsWith(
+        `NewCo - NewRole - ${dedupeKey} (2).md`,
+      ),
+    ).toBe(true);
   } finally {
     await vault.cleanup();
   }
@@ -414,23 +515,23 @@ test("concurrent updates do not corrupt markdown", async () => {
     const id = parseJsonOutput(added.stdout).created.id;
 
     const first = runCliAsync([
-        "update",
-        "--vault-root",
-        vault.rootPath,
-        "--id",
-        id,
-        "--patch",
-        JSON.stringify({ Notes: "A" }),
-      ]);
+      "update",
+      "--vault-root",
+      vault.rootPath,
+      "--id",
+      id,
+      "--patch",
+      JSON.stringify({ Notes: "A" }),
+    ]);
     const second = runCliAsync([
-        "update",
-        "--vault-root",
-        vault.rootPath,
-        "--id",
-        id,
-        "--patch",
-        JSON.stringify({ Notes: "B" }),
-      ]);
+      "update",
+      "--vault-root",
+      vault.rootPath,
+      "--id",
+      id,
+      "--patch",
+      JSON.stringify({ Notes: "B" }),
+    ]);
 
     const [a, b] = await Promise.all([first, second]);
     expect(a.exitCode).toBe(0);
@@ -536,9 +637,81 @@ test("find warns when skipping invalid job notes", async () => {
     const payload = parseJsonOutput(found.stdout);
     expect(payload.ok).toBe(true);
     expect(payload.results.length).toBe(0);
-    expect(found.stderr.includes("Warning: skipped invalid job note")).toBe(true);
-    expect(found.stderr.includes("InvalidCo - Engineer - badbadbad1.md")).toBe(true);
+    expect(found.stderr.includes("Warning: skipped invalid job note")).toBe(
+      true,
+    );
+    expect(found.stderr.includes("InvalidCo - Engineer - badbadbad1.md")).toBe(
+      true,
+    );
     expect(found.stderr.includes("Status")).toBe(true);
+  } finally {
+    await vault.cleanup();
+  }
+});
+
+test("find and update do not auto-migrate legacy notes missing Status", async () => {
+  const vault = await createTempVault();
+
+  try {
+    await vault.writeJobNote(
+      "LegacyNoStatus - Engineer - 1234567890.md",
+      [
+        "---",
+        "Company: LegacyNoStatus",
+        "Role: Engineer",
+        "Job Spec: https://example.com/jobs/legacy-no-status",
+        "---",
+        "",
+        "legacy body",
+      ].join("\n"),
+    );
+
+    const found = runCli([
+      "find",
+      "--vault-root",
+      vault.rootPath,
+      "--query",
+      "LegacyNoStatus",
+    ]);
+
+    expect(found.exitCode).toBe(0);
+    const foundPayload = parseJsonOutput(found.stdout);
+    expect(foundPayload.ok).toBe(true);
+    expect(foundPayload.results.length).toBe(1);
+    expect(foundPayload.results[0].status).toBeUndefined();
+
+    const exists = runCli([
+      "exists",
+      "--vault-root",
+      vault.rootPath,
+      "--job-spec-url",
+      "https://example.com/jobs/legacy-no-status",
+    ]);
+
+    expect(exists.exitCode).toBe(0);
+    const id = parseJsonOutput(exists.stdout).match.id;
+
+    const updated = runCli([
+      "update",
+      "--vault-root",
+      vault.rootPath,
+      "--id",
+      id,
+      "--patch",
+      JSON.stringify({
+        Notes: "Touched without status migration",
+      }),
+    ]);
+
+    expect(updated.exitCode).toBe(0);
+    const updatedPayload = parseJsonOutput(updated.stdout);
+    expect(updatedPayload.updated.record.Notes).toBe(
+      "Touched without status migration",
+    );
+    expect(updatedPayload.updated.record.Status).toBeUndefined();
+
+    const finalContent = await vault.readJobNote(updatedPayload.updated.path);
+    expect(finalContent.includes("Status:")).toBe(false);
   } finally {
     await vault.cleanup();
   }
@@ -548,7 +721,9 @@ test("root help prints usage and exits successfully", () => {
   const result = runCli(["--help"]);
 
   expect(result.exitCode).toBe(0);
-  expect(result.stdout.includes("Usage: drudger <command> [options]")).toBe(true);
+  expect(result.stdout.includes("Usage: drudger <command> [options]")).toBe(
+    true,
+  );
   expect(result.stdout.includes("Commands:")).toBe(true);
   expect(result.stdout.includes("exists")).toBe(true);
   expect(result.stdout.includes("add")).toBe(true);
@@ -560,6 +735,10 @@ test("subcommand help prints command-specific usage", () => {
   const result = runCli(["add", "--help"]);
 
   expect(result.exitCode).toBe(0);
-  expect(result.stdout.includes("Usage: drudger add --vault-root <path> --input <json-or-file-ref>")).toBe(true);
+  expect(
+    result.stdout.includes(
+      "Usage: drudger add --vault-root <path> --input <json-or-file-ref>",
+    ),
+  ).toBe(true);
   expect(result.stdout.includes("--input")).toBe(true);
 });

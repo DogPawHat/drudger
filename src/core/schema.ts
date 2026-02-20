@@ -44,6 +44,7 @@ export const JobRecordSchema = z.object(BaseRecordShape);
 
 export const AddInputSchema = z.object({
   ...BaseRecordShape,
+  Status: StatusSchema.default("🔍"),
   body: z.string().optional(),
 });
 
